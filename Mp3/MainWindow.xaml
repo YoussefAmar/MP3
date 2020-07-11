@@ -5,11 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Mp3"
         mc:Ignorable="d"
-        Title="MP3 player Amar" Height="720" Width="600"
+        Title="MP3 player Amar" Height="750" Width="600"
         Icon="Ressource/Label.png"
         Background="Black"
         ResizeMode="CanMinimize"
-        WindowStartupLocation="CenterScreen" Foreground="#FF8ED9F6" BorderBrush="#FF77B4CC">
+        WindowStartupLocation="CenterScreen" Foreground="#FF8ED9F6" BorderBrush="#FF77B4CC"
+        Closing="Window_Closing">
+
     <Window.Resources>
         <Style x:Key="BtnTemplate" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -40,6 +42,7 @@
         <Image x:Key="Randomb" Source="Ressource\btnRandomb.png" Stretch="Uniform"  VerticalAlignment="Center" HorizontalAlignment="Left" Width="40" Height="40" Cursor="Hand"/>
         <Image x:Key="Next" Source="Ressource\btnNext.png" Stretch="Uniform"  VerticalAlignment="Center" HorizontalAlignment="Left" Width="60" Height="60" Cursor="Hand"/>
         <Image x:Key="Previous" Source="Ressource\btnPrevious.png" Stretch="Uniform"  VerticalAlignment="Center" HorizontalAlignment="Left" Width="60" Height="60" Cursor="Hand"/>
+        <Image x:Key="Cancel" Source="Ressource\BtnCancel.png" Stretch="Uniform"  VerticalAlignment="Center" HorizontalAlignment="Left" Width="25" Height="25" Cursor="Hand"/>
 
         <Style x:Key="SpeedFocusVisualStyte">
             <Setter Property="Control.Template">
@@ -148,7 +151,7 @@
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
-        
+
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -170,6 +173,10 @@
         <Button Name="BtnRandom" Margin="0,0,20,30" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Bottom" Height="50" Grid.Row="1" Style="{StaticResource BtnTemplate}" HorizontalAlignment="Right" Width="50" Click="BtnRandom_Click">
             <DynamicResource ResourceKey="Randoma"/>
         </Button>
+        <Button Name="BtnCancel" Margin="555,45,0,0" Background="Transparent" BorderBrush="Transparent" Grid.Row="0" Style="{StaticResource BtnTemplate}" HorizontalAlignment="Left" Width="25" Height="25" VerticalAlignment="Top" Click="BtnCancel_Click">
+            <DynamicResource ResourceKey="Cancel"/>
+        </Button>
+
         <DockPanel Margin="0,0,-0.4,0.4" Grid.RowSpan="2">
             <Menu DockPanel.Dock="Top" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Background="Transparent" BorderBrush="Transparent" FontSize="22" Foreground="#FF8ED9F6">
                 <MenuItem Header="Liste de lecture" Name="BtnPlaylist" Height="30" Width="180" Click="BtnPlaylist_Click" Cursor="Hand" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
@@ -188,15 +195,41 @@
                 </Slider>
             </Menu>
             <Label Name="LbSon" Content="100" Width="40" Background="Transparent" BorderBrush="Transparent" FontSize="16"  Foreground="#FF8ED9F6" Margin="540,-30,0,0" Height="30" VerticalAlignment="Top"/>
-            <TextBlock x:Name="tbNom" Text="" TextWrapping="WrapWithOverflow" FontSize="20" TextAlignment="Center" Margin="-573,0,0,195" Width="570" Height="70" VerticalAlignment="Bottom" Foreground="#FF8ED9F6"/>
-            <Slider x:Name="SliderMusique" Width="565" FontSize="20" Cursor="Hand" Maximum="100" BorderBrush="#FF77B4CC" Foreground="#FF8ED9F6" SmallChange="1" LargeChange="10" Margin="-573,0,0,149.6" Height="40" VerticalAlignment="Bottom" TickPlacement="Both" TickFrequency="0" IsMoveToPointEnabled="True" ValueChanged="SliderMusique_ValueChanged" Template="{StaticResource HorizontalSlider}"/>
-            <Label Name="LbDuration" Content="00:00 / 00:00" Height="30" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-570,0,0,110" Width="105" Background="Transparent" BorderBrush="Transparent" FontSize="16" Foreground="#FF8ED9F6"/>
-            <DataGrid Name="DgPlaylist" Height="349" VerticalAlignment="Top" Background="Transparent" Foreground="#FF8ED9F6" BorderBrush="Transparent" Width="585" Margin="-580,34.6,0,0">
+            <Label Name="LbPlaylist" Content="" Margin="-575,15,5,640" Height="30" Background="Transparent" BorderBrush="Transparent" FontSize="14"  Foreground="#FF8ED9F6" VerticalAlignment="Top" MinWidth="300" MinHeight="30" HorizontalAlignment="Left"/>
+            <TextBox Name="tbRecherche" SelectionBrush="Gray" CaretBrush="Gray" BorderThickness="1 1 1 1" BorderBrush="#FF8ED9F6" Margin="-230,15,0,0" Background="Transparent" TextWrapping="NoWrap" FontSize="14"  Foreground="#FF8ED9F6" Width="200" HorizontalAlignment="Left" Height="25" VerticalAlignment="Top" TextAlignment="Left" TextChanged="tbRecherche_TextChanged"/>
+            <Image Name="ISearch" Source="Ressource\IconSearch.png"  Margin="-500,15,0,0" Width="25" Height="25" VerticalAlignment="Top"/>
+            <TextBlock x:Name="tbNom" Text="" TextWrapping="WrapWithOverflow" FontSize="24" TextAlignment="Center" Margin="-569,0,0,195" Width="570" Height="65" VerticalAlignment="Bottom" Foreground="#FF8ED9F6"/>
+            <Slider x:Name="SliderMusique" Width="565" Height="40" FontSize="20" Cursor="Hand" Maximum="100" BorderBrush="#FF77B4CC" Foreground="#FF8ED9F6" SmallChange="1" LargeChange="10" Margin="-568,500,0,150" TickPlacement="Both" TickFrequency="0" IsMoveToPointEnabled="True" ValueChanged="SliderMusique_ValueChanged" Template="{StaticResource HorizontalSlider}"/>
+            <Label Name="LbDuration" Content="00:00 / 00:00" Height="30" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-570,0,0,105" Width="105" Background="Transparent" BorderBrush="Transparent" FontSize="16" Foreground="#FF8ED9F6"/>
+            <DataGrid Name="DgPlaylist" Height="350" FontSize="14" VerticalAlignment="Top" HorizontalAlignment="Center" Background="Transparent" Foreground="#FF8ED9F6" BorderBrush="Transparent" Width="585" Margin="-580,50,0,0" RowHeight="30" RowBackground="Transparent" IsReadOnly="True" CanUserAddRows="false" ColumnHeaderHeight="25" AutoGenerateColumns="False" HeadersVisibility="Column" MouseDoubleClick="DgPlaylist_MouseDoubleClick">
                 <DataGrid.Resources>
                     <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="Foreground" Value="#FF77B4CC" />
+                        <Setter Property="BorderBrush" Value="#FF77B4CC"/>
+                        <Setter Property="BorderThickness" Value="2 2 2 1"/>
+                        <Setter Property="FontWeight"  Value="Bold" />
+                        <Setter Property="Height" Value="30" />
+                        <Setter Property="Width" Value="auto"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Center"/>
                     </Style>
+                    <Style TargetType="ScrollBar">
+                        <Setter Property="Background" Value="Transparent"/>
+                    </Style>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Gray"/>
                 </DataGrid.Resources>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Musique" Width="*" Foreground="#FF8ED9F6" Binding="{Binding Musique}"/>
+                    <DataGridTextColumn Header="Identifiant" Foreground="#FF8ED9F6" Binding="{Binding ID}" Visibility="Collapsed"/>
+                    <DataGridTextColumn Header="Temps" Width="100" Foreground="#FF8ED9F6" Binding="{Binding Temps}">
+                        <DataGridTextColumn.ElementStyle>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                            </Style>
+                        </DataGridTextColumn.ElementStyle>
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
             </DataGrid>
         </DockPanel>
     </Grid>
