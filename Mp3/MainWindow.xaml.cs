@@ -127,7 +127,7 @@ namespace Mp3
                 Mouse.OverrideCursor = null;
             }
 
-            catch {}
+            catch {Mouse.OverrideCursor = null; }
         }
 
         private void Recherche(int info)
