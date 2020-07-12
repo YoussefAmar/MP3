@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Windows.Data;
+using System.Windows.Controls.Primitives;
+using System.Windows.Input;
 
 namespace Mp3
 {
@@ -77,7 +79,9 @@ namespace Mp3
         private void Load()
         {
             try
-            {              
+            {
+                Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
                 sr = new StreamReader(ficnom);
 
                 jsondata = sr.ReadToEnd();
@@ -120,6 +124,7 @@ namespace Mp3
 
                 player.controls.currentPosition = save.PositionSave;
 
+                Mouse.OverrideCursor = null;
             }
 
             catch {}
@@ -127,14 +132,16 @@ namespace Mp3
 
         private void Recherche(int info)
         {
-           
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
             do
             {
                 media = player.currentPlaylist.Item[info];
                 player.controls.playItem(media);
             }
             while (player.currentMedia.duration == 0);
-        
+
+            Mouse.OverrideCursor = null;
         }
 
         private void BtnPlay_Click(object sender, RoutedEventArgs e)
@@ -154,12 +161,6 @@ namespace Mp3
 
                 path = read.SelectedPath;
 
-                Data.Clear();
-                DgPlaylist.ItemsSource = null;
-                DgPlaylist.Items.Clear();
-                DgPlaylist.Items.Refresh();
-
-
                 Playlist_Remplir(path);
             }
 
@@ -171,7 +172,14 @@ namespace Mp3
 
         private void Playlist_Remplir(string path)
         {
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
             int i = 0;
+
+            Data.Clear();
+            DgPlaylist.ItemsSource = null;
+            DgPlaylist.Items.Clear();
+            DgPlaylist.Items.Refresh();
 
             playlist = player.playlistCollection.newPlaylist(path);
 
@@ -193,6 +201,8 @@ namespace Mp3
 
                 i++;
             }
+
+            Mouse.OverrideCursor = null;
 
             try
             {
@@ -423,15 +433,29 @@ namespace Mp3
 
         }
 
+        private void BtnRefresh_Click(object sender, RoutedEventArgs e)
+        {
+            if (path != "")
+            {
+                Playlist_Remplir(path);
+                DgPlaylist.ItemsSource = Data;
+            }
+        }
+
         private void DgPlaylist_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if(DgPlaylist.SelectedIndex > -1)
+            if (DgPlaylist.SelectedIndex > -1)
             {
-                var item = (DgPlaylist.SelectedItem as Display).ID;
-                Recherche(item);
-                BtnPlay.Content = FindResource("Pause");
-                timer.Start();
-                player.controls.play();
+                DependencyObject src = VisualTreeHelper.GetParent((DependencyObject)e.OriginalSource);
+
+                if ((!(src is System.Windows.Controls.Primitives.ScrollBar) && (!(src is System.Windows.Controls.Primitives.RepeatButton)) && (!(src is System.Windows.Controls.Grid)) && src.GetType() != typeof(System.Windows.Controls.Primitives.Thumb)))
+                {
+                    var item = (DgPlaylist.SelectedItem as Display).ID;
+                    Recherche(item);
+                    BtnPlay.Content = FindResource("Pause");
+                    timer.Start();
+                    player.controls.play();                   
+                }
             }
         }
     }
