@@ -222,7 +222,7 @@
                         <Setter Property="Background" Value="Transparent"/>
                     </Style>
                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF7F7F7F"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF888888"/>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Musique" Width="*" Foreground="#FF8ED9F6" Binding="{Binding Musique}"/>
