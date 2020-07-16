@@ -236,7 +236,7 @@ namespace Mp3
                 player.currentPlaylist = playlist;
                 tbNom.Text = player.currentMedia.name;
                 LbPlaylist.Content = "Dossier : " + playlist.name.Substring(playlist.name.LastIndexOf("\\") + 1);
-                LbNombre.Content = "Musiques : " + DgPlaylist.Items.Count;
+                LbNombre.Content = "Musiques : " + player.currentPlaylist.count;
                 Start();
             }
 
