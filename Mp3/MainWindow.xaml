@@ -205,7 +205,8 @@
             <TextBlock x:Name="tbNom" Text="" TextWrapping="WrapWithOverflow" FontSize="24" TextAlignment="Center" Margin="-577,0,0,195" Width="570" Height="65" VerticalAlignment="Bottom" Foreground="#FF8ED9F6"/>
             <Slider x:Name="SliderMusique" Width="565" Height="40" FontSize="20" Cursor="Hand" Maximum="100" BorderBrush="#FF77B4CC" Foreground="#FF8ED9F6" SmallChange="1" LargeChange="10" Margin="-575,500,0,150" TickPlacement="Both" TickFrequency="0" IsMoveToPointEnabled="True" ValueChanged="SliderMusique_ValueChanged" Template="{StaticResource HorizontalSlider}"/>
             <Label Name="LbDuration" Content="00:00 / 00:00" Height="30" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="-575,0,0,105" Width="105" Background="Transparent" BorderBrush="Transparent" FontSize="16" Foreground="#FF8ED9F6"/>
-            <DataGrid Name="DgPlaylist" Height="350" FontSize="14" VerticalAlignment="Top" HorizontalAlignment="Center" Background="Transparent" Foreground="#FF8ED9F6" BorderBrush="Transparent" Width="585" Margin="-585,50,0,0" RowHeight="30" RowBackground="Transparent" IsReadOnly="True" CanUserAddRows="false" ColumnHeaderHeight="25" AutoGenerateColumns="False" HeadersVisibility="Column" MouseDoubleClick="DgPlaylist_MouseDoubleClick">
+            <Label x:Name="LbNombre" HorizontalAlignment="Center" HorizontalContentAlignment="Left" Margin="-960,0,0,0"  Width="200" Background="Transparent" BorderBrush="Transparent" FontSize="14" Foreground="#FF8ED9F6" Height="30" VerticalAlignment="Bottom"/>
+            <DataGrid Name="DgPlaylist" Height="350" FontSize="14" VerticalAlignment="Top" HorizontalAlignment="Center" Background="Transparent" Foreground="#FF8ED9F6" BorderBrush="Transparent" Width="585" Margin="-585,50,0,0" RowHeight="30" RowBackground="Transparent" IsReadOnly="True" CanUserAddRows="false" ColumnHeaderHeight="25" AutoGenerateColumns="False" HeadersVisibility="Column" CanUserSortColumns="False" CanUserDeleteRows="False" CanUserResizeRows="False" CanUserReorderColumns="False" MouseDoubleClick="DgPlaylist_MouseDoubleClick" PreviewMouseRightButtonDown="DgPlaylist_PreviewMouseRightButtonDown">
                 <DataGrid.Resources>
                     <Style BasedOn="{StaticResource {x:Type DataGridColumnHeader}}" TargetType="{x:Type DataGridColumnHeader}">
                         <Setter Property="Background" Value="Transparent" />
@@ -221,7 +222,7 @@
                         <Setter Property="Background" Value="Transparent"/>
                     </Style>
                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent"/>
-                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="LightSlateGray"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#FF7F7F7F"/>
                 </DataGrid.Resources>
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Musique" Width="*" Foreground="#FF8ED9F6" Binding="{Binding Musique}"/>

@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
-using System.Windows.Threading;
 using System.IO;
 using WMPLib;
 using System.ComponentModel;
@@ -11,8 +10,9 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Windows.Data;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using Microsoft.WindowsAPICodePack.Taskbar;
+using System.Windows.Controls;
 
 namespace Mp3
 {
@@ -23,7 +23,7 @@ namespace Mp3
         private IWMPMedia media;
         private FolderBrowserDialog read = null;
         private string path;
-        private int CacheSon;
+        private int CacheSon,CacheMusique;
         private Timer timer = new Timer();
         private bool loop = false;
         private bool shuffle = false;
@@ -35,6 +35,7 @@ namespace Mp3
         private StreamWriter wr;
         private StreamReader sr;
         private ICollectionView Collection;
+        private TaskbarManager progress = TaskbarManager.Instance;
 
         public WindowsMediaPlayer Player { get => player; set => player = value; }
         public IWMPPlaylist Playlist { get => playlist; set => playlist = value; }
@@ -54,6 +55,8 @@ namespace Mp3
         public StreamWriter Wr { get => wr; set => wr = value; }
         public StreamReader Sr { get => sr; set => sr = value; }
         public ICollectionView Collection1 { get => Collection; set => Collection = value; }
+        public TaskbarManager Progress { get => progress; set => progress = value; }
+        public int CacheMusique1 { get => CacheMusique; set => CacheMusique = value; }
 
         public MainWindow()
         {
@@ -74,6 +77,23 @@ namespace Mp3
             tbNom.Text = player.currentMedia.name;
             SliderMusique.Maximum = player.currentMedia.duration;
             SliderMusique.TickFrequency = player.currentMedia.duration / 200;
+
+            int index;
+
+            index = Getmedia();
+
+                if (CacheMusique != index)
+                {       
+                    try
+                    {
+                        DgPlaylist.SelectedIndex = index;
+                        DgPlaylist.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+                        DgPlaylist.ScrollIntoView(DgPlaylist.SelectedItem);
+                    }
+                    catch { }
+                  
+                   CacheMusique = index;
+                }
         }
 
         private void Load()
@@ -112,7 +132,9 @@ namespace Mp3
                 Recherche(save.PlayerSave);
 
                 player.controls.currentPosition = save.PositionSave;
-              
+                CacheSon =(int)save.SonSave;
+                CacheMusique = save.PlayerSave;
+
                 SliderMusique.Value = player.controls.currentPosition;
                 Player_MediaChange(null);
                 LbDuration.Content = "??:??" + " / " + player.currentMedia.durationString;
@@ -123,6 +145,9 @@ namespace Mp3
                 Activer(true);
 
                 player.controls.currentPosition = save.PositionSave;
+
+                try { PlaylistFocus();}
+                catch { }
 
                 Mouse.OverrideCursor = null;
             }
@@ -211,6 +236,7 @@ namespace Mp3
                 player.currentPlaylist = playlist;
                 tbNom.Text = player.currentMedia.name;
                 LbPlaylist.Content = "Dossier : " + playlist.name.Substring(playlist.name.LastIndexOf("\\") + 1);
+                LbNombre.Content = "Musiques : " + DgPlaylist.Items.Count;
                 Start();
             }
 
@@ -235,12 +261,24 @@ namespace Mp3
                 BtnPlay.Content = FindResource("Pause");
                 timer.Start();
                 player.controls.play();
+
+                try { PlaylistFocus(); }
+                catch { }
+
+                try
+                {
+                    progress.SetProgressState(TaskbarProgressBarState.Normal);
+                }
+                catch{ }
             }
             else if (BtnPlay.Content == FindResource("Pause"))
             {
                 BtnPlay.Content = FindResource("Play");
                 timer.Stop();
                 player.controls.pause();
+                try { PlaylistFocus(); }
+                catch { }
+                progress.SetProgressState(TaskbarProgressBarState.Paused);
             }
         }
 
@@ -286,6 +324,7 @@ namespace Mp3
             {
                 SliderMusique.Value = player.controls.currentPosition;
                 LbDuration.Content = player.controls.currentPositionString + " / " + player.currentMedia.durationString;
+                progress.SetProgressValue((int)SliderMusique.Value, (int)SliderMusique.Maximum);
             }
         }
 
@@ -301,12 +340,11 @@ namespace Mp3
         {
             if (SliderMusique.Value >= player.controls.currentPosition + 0.1 || SliderMusique.Value <= player.controls.currentPosition - 0.1)
             {
-                if (SliderMusique.Value < player.currentMedia.duration)
+                if (SliderMusique.Value + 0.19 < player.currentMedia.duration)
                 {
                     player.controls.currentPosition = SliderMusique.Value;
                     LbDuration.Content = player.controls.currentPositionString + " / " + player.currentMedia.durationString;
                 }
-
             }
 
             if (SliderMusique.Value + 0.19 >= player.currentMedia.duration && loop)
@@ -358,6 +396,8 @@ namespace Mp3
             {
                 SliderMusique.Value = 0;
                 player.controls.currentPosition = 0;
+                try { PlaylistFocus(); }
+                catch { }
             }
 
         }
@@ -417,6 +457,9 @@ namespace Mp3
         {
             tbRecherche.Text = "";
             DgPlaylist.ItemsSource = Data;
+
+            try { PlaylistFocus(); }
+            catch { }
         }
 
         private void tbRecherche_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -438,9 +481,44 @@ namespace Mp3
             if (path != "")
             {
                 Playlist_Remplir(path);
-                DgPlaylist.ItemsSource = Data;
+
+                BtnCancel_Click(null, null);
+
+                player.controls.stop();
+                BtnPlay.Content = FindResource("Play");
+
+                timer.Stop();
+                LbDuration.Content = "00:00" + " / " + player.currentMedia.durationString;
             }
         }
+
+        private void PlaylistFocus()
+        {
+            DgPlaylist.SelectedIndex = Getmedia();
+            DgPlaylist.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
+            DgPlaylist.ScrollIntoView(DgPlaylist.SelectedItem);
+        }
+
+        private void DgPlaylist_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+           if(path !="")
+            {
+                if (DgPlaylist.SelectedIndex > -1)
+                {
+                    Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
+
+                    int item = (DgPlaylist.SelectedItem as Display).ID;
+
+                    string argument = "/select, \"" + player.currentPlaylist.Item[item].sourceURL + "\"";
+
+                    System.Diagnostics.Process.Start("explorer.exe", argument);
+
+                    Mouse.OverrideCursor = null;
+
+                }                   
+            }
+
+        }    
 
         private void DgPlaylist_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
@@ -454,10 +532,10 @@ namespace Mp3
                     Recherche(item);
                     BtnPlay.Content = FindResource("Pause");
                     timer.Start();
-                    player.controls.play();                   
+                    player.controls.play();
                 }
             }
-        }
+        }     
     }
 
     [Serializable]
