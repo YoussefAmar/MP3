@@ -74,7 +74,8 @@ namespace Mp3
 
         private void Player_MediaChange(object Item)
         {
-            tbNom.Text = player.currentMedia.name;
+            String Track = player.currentMedia.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
+            tbNom.Text = Track.Remove(Track.Length - 4);
             SliderMusique.Maximum = player.currentMedia.duration;
             SliderMusique.TickFrequency = player.currentMedia.duration / 200;
 
@@ -212,7 +213,8 @@ namespace Mp3
             {
                 media = player.newMedia(file);
                 playlist.appendItem(media);
-                Data.Add(new Display(media.name, media.durationString, i));
+                String Track = media.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
+                Data.Add(new Display(Track.Remove(Track.Length - 4), media.durationString, i));
                     
                 i++;
             }
@@ -221,8 +223,8 @@ namespace Mp3
             {
                 media = player.newMedia(file);
                 playlist.appendItem(media);
-
-                Data.Add(new Display(media.name, media.durationString, i));
+                String Track = media.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
+                Data.Add(new Display(Track.Remove(Track.Length - 4), media.durationString, i));
 
                 i++;
             }
@@ -234,7 +236,8 @@ namespace Mp3
                 DgPlaylist.ItemsSource = Data;
                 Collection = CollectionViewSource.GetDefaultView(Data);
                 player.currentPlaylist = playlist;
-                tbNom.Text = player.currentMedia.name;
+                String Track = player.currentMedia.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
+                tbNom.Text = Track.Remove(Track.Length - 4);
                 LbPlaylist.Content = "Dossier : " + playlist.name.Substring(playlist.name.LastIndexOf("\\") + 1);
                 LbNombre.Content = "Musiques : " + player.currentPlaylist.count;
                 Start();
@@ -388,7 +391,8 @@ namespace Mp3
             {
                 SliderMusique.Value = 0;
                 player.controls.previous();
-                tbNom.Text = player.currentMedia.name;
+                String Track = player.currentMedia.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
+                tbNom.Text = Track.Remove(Track.Length - 4);
                 LbDuration.Content = "00:00" + " / " + player.currentMedia.durationString;
             }
 
@@ -406,7 +410,8 @@ namespace Mp3
         {
             SliderMusique.Value = 0;
             player.controls.next();
-            tbNom.Text = player.currentMedia.name;
+            String Track = player.currentMedia.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
+            tbNom.Text = Track.Remove(Track.Length - 4);
             LbDuration.Content = "00:00" + " / " + player.currentMedia.durationString;
         }
 
@@ -424,7 +429,6 @@ namespace Mp3
             }
 
             return index;
-
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
@@ -531,6 +535,8 @@ namespace Mp3
                     var item = (DgPlaylist.SelectedItem as Display).ID;
                     Recherche(item);
                     BtnPlay.Content = FindResource("Pause");
+                    PlaylistFocus();
+                    player.controls.currentPosition = 0;
                     timer.Start();
                     player.controls.play();
                 }
