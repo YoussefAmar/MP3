@@ -493,7 +493,10 @@ namespace Mp3
 
                 timer.Stop();
                 LbDuration.Content = "00:00" + " / " + player.currentMedia.durationString;
+
+                PlaylistFocus();
             }
+
         }
 
         private void PlaylistFocus()
