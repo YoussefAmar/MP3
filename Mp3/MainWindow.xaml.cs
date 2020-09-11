@@ -138,7 +138,7 @@ namespace Mp3
 
                 SliderMusique.Value = player.controls.currentPosition;
                 Player_MediaChange(null);
-                LbDuration.Content = "??:??" + " / " + player.currentMedia.durationString;
+                LbDuration.Content = save.DurationSave;
 
                 player.controls.stop();
                 BtnPlay.Content = FindResource("Play");
@@ -153,7 +153,8 @@ namespace Mp3
                 Mouse.OverrideCursor = null;
             }
 
-            catch {Mouse.OverrideCursor = null; }
+            catch {Mouse.OverrideCursor = null;}
+
         }
 
         private void Recherche(int info)
@@ -205,7 +206,6 @@ namespace Mp3
             Data.Clear();
             DgPlaylist.ItemsSource = null;
             DgPlaylist.Items.Clear();
-            DgPlaylist.Items.Refresh();
 
             playlist = player.playlistCollection.newPlaylist(path);
 
@@ -236,6 +236,7 @@ namespace Mp3
                 DgPlaylist.ItemsSource = Data;
                 Collection = CollectionViewSource.GetDefaultView(Data);
                 player.currentPlaylist = playlist;
+                DgPlaylist.Items.Refresh();
                 String Track = player.currentMedia.sourceURL.Substring(media.sourceURL.LastIndexOf("\\") + 1);
                 tbNom.Text = Track.Remove(Track.Length - 4);
                 LbPlaylist.Content = "Dossier : " + playlist.name.Substring(playlist.name.LastIndexOf("\\") + 1);
@@ -437,7 +438,7 @@ namespace Mp3
             {
                 int index = Getmedia();
 
-                save = new Etat(index, player.controls.currentPosition, (double)player.settings.volume, path, loop, shuffle);
+                save = new Etat(index, player.controls.currentPosition, (double)player.settings.volume, path, loop, shuffle, LbDuration.Content.ToString());
 
                 wr = new StreamWriter(ficnom);
 
@@ -459,11 +460,16 @@ namespace Mp3
 
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
-            tbRecherche.Text = "";
+
+            tbRecherche.Clear();
             DgPlaylist.ItemsSource = Data;
 
             try { PlaylistFocus(); }
             catch { }
+
+            try { PlaylistFocus(); }
+            catch { }
+
         }
 
         private void tbRecherche_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -495,6 +501,7 @@ namespace Mp3
                 LbDuration.Content = "00:00" + " / " + player.currentMedia.durationString;
 
                 PlaylistFocus();
+                DgPlaylist.ItemsSource = Data;
             }
 
         }
@@ -537,6 +544,10 @@ namespace Mp3
                 {
                     var item = (DgPlaylist.SelectedItem as Display).ID;
                     Recherche(item);
+
+                    if (tbRecherche.Text != "")
+                        tbRecherche.Clear();
+
                     BtnPlay.Content = FindResource("Pause");
                     PlaylistFocus();
                     player.controls.currentPosition = 0;
@@ -556,6 +567,7 @@ namespace Mp3
         private double positionSave;
         private bool loopSave;
         private bool shuffleSave;
+        private string durationSave;
 
         public Etat()
         {
@@ -565,9 +577,10 @@ namespace Mp3
             positionSave = 0;
             loopSave = false;
             shuffleSave = false;
+            durationSave = null;
         }
 
-        public Etat(int p, double po, double so, string pl, bool l, bool s)
+        public Etat(int p, double po, double so, string pl, bool l, bool s, string d)
         {
             playlistSave = pl;
             playerSave = p;
@@ -575,6 +588,7 @@ namespace Mp3
             sonSave = so;
             loopSave = l;
             shuffleSave = s;
+            durationSave = d;
         }
 
         public Etat(SerializationInfo info, StreamingContext context)
@@ -585,6 +599,7 @@ namespace Mp3
             this.sonSave = (double)info.GetValue("son", typeof(double));
             this.loopSave = (bool)info.GetValue("loop", typeof(bool));
             this.shuffleSave = (bool)info.GetValue("shuffle", typeof(bool));
+            this.durationSave = (string)info.GetValue("duration", typeof(string));
         }
 
         public int PlayerSave { get => playerSave; set => playerSave = value; }
@@ -593,6 +608,7 @@ namespace Mp3
         public string PlaylistSave { get => playlistSave; set => playlistSave = value; }
         public double PositionSave { get => positionSave; set => positionSave = value; }
         public double SonSave { get => sonSave; set => sonSave = value; }
+        public string DurationSave { get => durationSave; set => durationSave = value; }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
@@ -602,6 +618,7 @@ namespace Mp3
             info.AddValue("son", sonSave, typeof(double));
             info.AddValue("loop", loopSave, typeof(bool));
             info.AddValue("shuffle", shuffleSave, typeof(bool));
+            info.AddValue("duration", durationSave, typeof(string));
         }
     }
 
