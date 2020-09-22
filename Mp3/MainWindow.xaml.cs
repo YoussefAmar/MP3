@@ -494,14 +494,24 @@ namespace Mp3
 
                 BtnCancel_Click(null, null);
 
+                try
+                {
+                    progress.SetProgressState(TaskbarProgressBarState.Normal);
+                }
+                catch { }
+
                 player.controls.stop();
                 BtnPlay.Content = FindResource("Play");
 
                 timer.Stop();
                 LbDuration.Content = "00:00" + " / " + player.currentMedia.durationString;
 
+                progress.SetProgressValue((int)SliderMusique.Value, (int)SliderMusique.Maximum);
+
                 PlaylistFocus();
-                DgPlaylist.ItemsSource = Data;
+
+                tbRecherche.Text = "a";
+                tbRecherche.Clear();
             }
 
         }
